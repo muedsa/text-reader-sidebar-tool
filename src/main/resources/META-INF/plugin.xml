@@ -1,0 +1,64 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>com.muedsa.jetbrains.textReader</id>
+    <name>TextReaderSidebarTool</name>
+    <vendor url="https://github.com/MUedsa/TextReaderSiderTool">MUEDSA</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow
+                factoryClass="com.muedsa.jetbrains.textReader.toolWindow.TextReaderToolWindowFactory"
+                id="TextReaderSidebarTool"
+                anchor="right"
+                largeStripeAnchor="right"
+                secondary="true"
+                icon="com.muedsa.jetbrains.textReader.TextReaderSidebarToolIcons.BOOK_SKULL"
+        />
+        <applicationConfigurable
+                parentId="other"
+                instance="com.muedsa.jetbrains.textReader.setting.TextReaderSettingsConfigurable"
+                id="com.muedsa.jetbrains.textReader.setting.TextReaderSettingsConfigurable"
+                displayName="TextReaderSidebarToolSettings"/>
+        <notificationGroup
+                id="TextReaderSidebarToolNotificationGroup"
+                displayType="TOOL_WINDOW"
+                toolWindowId="TextReaderSidebarTool"
+        />
+        <notificationGroup
+                id="TextReaderSidebarToolChapterContentGroup"
+                displayType="NONE"
+        />
+        <iconMapper mappingFile="TextReaderSidebarToolIconMappings.json"/>
+    </extensions>
+    <actions>
+        <group id="com.muedsa.intellij.textReader.groupAction"
+               text="TextReaderSidebarTool"
+               icon="com.muedsa.jetbrains.textReader.TextReaderSidebarToolIcons.BOOK_SKULL"
+               popup="true">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <action id="com.muedsa.jetbrains.textReader.action.ReaderNextAction"
+                    class="com.muedsa.jetbrains.textReader.action.ReaderNextAction"
+                    text="ReaderNextAction"
+                    description="TextReaderSidebarTool next action">
+                <keyboard-shortcut keymap="$default" first-keystroke="alt D"/>
+            </action>
+            <action id="com.muedsa.jetbrains.textReader.action.ReaderPreviousAction"
+                    class="com.muedsa.jetbrains.textReader.action.ReaderPreviousAction"
+                    text="ReaderPreviousAction"
+                    description="TextReaderSidebarTool previous action">
+                <keyboard-shortcut keymap="$default" first-keystroke="alt A"/>
+            </action>
+            <action id="com.muedsa.jetbrains.textReader.action.ReaderHideAction"
+                    class="com.muedsa.jetbrains.textReader.action.ReaderHideAction"
+                    text="ReaderHideAction"
+                    description="TextReaderSidebarTool hide action">
+                <keyboard-shortcut keymap="$default" first-keystroke="alt S"/>
+            </action>
+        </group>
+    </actions>
+    <applicationListeners>
+        <listener class="com.muedsa.jetbrains.textReader.bus.BorderSettingsListener"
+                  topic="com.muedsa.jetbrains.textReader.bus.TextReaderEventListener"/>
+    </applicationListeners>
+</idea-plugin>
