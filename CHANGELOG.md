@@ -21,6 +21,6 @@
 
 - 移除状态栏部件
 
-[Unreleased]: https://github.com/JetBrains/intellij-platform-plugin-template/compare/2.0.1...HEAD
-[2.0.1]: https://github.com/JetBrains/intellij-platform-plugin-template/compare/2.0.1...2.0.0
-[2.0.0]: https://github.com/JetBrains/intellij-platform-plugin-template/commits/2.0.0
+[Unreleased]: https://github.com/muedsa/text-reader-sidebar-tool/compare/2.0.1...HEAD
+[2.0.1]: https://github.com/muedsa/text-reader-sidebar-tool/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/muedsa/text-reader-sidebar-tool/commits/2.0.0
