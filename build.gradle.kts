@@ -43,7 +43,6 @@ dependencies {
         // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file for plugin from JetBrains Marketplace.
         plugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
 
-        instrumentationTools()
         pluginVerifier()
         zipSigner()
         testFramework(TestFrameworkType.Platform)
@@ -89,11 +88,11 @@ intellijPlatform {
         }
     }
 
-//    signing {
-//        certificateChain = providers.environmentVariable("CERTIFICATE_CHAIN")
-//        privateKey = providers.environmentVariable("PRIVATE_KEY")
-//        password = providers.environmentVariable("PRIVATE_KEY_PASSWORD")
-//    }
+    signing {
+        certificateChainFile = file("certificate/chain.crt")
+        privateKeyFile = file("certificate/private.pem")
+        password = providers.environmentVariable("PRIVATE_KEY_PASSWORD")
+    }
 
 //    publishing {
 //        token = providers.environmentVariable("PUBLISH_TOKEN")
