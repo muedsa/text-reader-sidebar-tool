@@ -161,17 +161,19 @@ class TextReaderToolWindow(
         panel.selectedIndex = 0
     }
 
-    fun updateChapterList(list: List<SimpleChapterInfo>) {
+    fun updateChapterList(data: Array<SimpleChapterInfo>, selectedIndex: Int = 0) {
         chapterSearchTextField.text = ""
-        chapterListData = list.toTypedArray()
-        chapterList.setListData(chapterListData)
+        chapterListData = data
+        if (data.isNotEmpty()) {
+            check(selectedIndex >= 0 && selectedIndex < chapterListData.size)
+            chapterList.setListData(data)
+            chapterList.selectedIndex = selectedIndex
+            chapterList.ensureIndexIsVisible(selectedIndex)
+        }
     }
 
-    fun updateChapter(text: String, settings: TextReaderSettings.State) {
-        if (chapterSearchTextField.text.isNotEmpty() && chapterList.itemsCount < chapterListData.size) {
-            chapterSearchTextField.text = ""
-            chapterList.setListData(chapterListData)
-        }
+    fun updateChapter(chapterIndex: Int, text: String, settings: TextReaderSettings.State) {
+        updateChapterList(data = chapterListData, selectedIndex = chapterIndex)
         chapterContentText.text = text
         chapterContentText.setCaretPosition(0)
         val attributes = SimpleAttributeSet()

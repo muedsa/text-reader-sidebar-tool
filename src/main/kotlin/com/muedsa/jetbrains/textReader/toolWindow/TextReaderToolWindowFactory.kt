@@ -11,6 +11,7 @@ import com.muedsa.jetbrains.textReader.bus.TextReaderEvents
 import com.muedsa.jetbrains.textReader.services.TextReaderFileInfoStore
 import com.muedsa.jetbrains.textReader.services.TextReaderService
 import com.muedsa.jetbrains.textReader.setting.TextReaderSettings
+import java.lang.StrictMath.min
 
 class TextReaderToolWindowFactory : ToolWindowFactory {
 
@@ -31,13 +32,15 @@ class TextReaderToolWindowFactory : ToolWindowFactory {
                     override fun onEvent(event: TextReaderEvents) {
                         if (event is TextReaderEvents.ChangeChapterListEvent) {
                             val fileInfo = TextReaderFileInfoStore.getInstance().state
-                            textReaderToolWindow.updateChapterList(fileInfo?.chapters ?: emptyList())
+                            textReaderToolWindow.updateChapterList(fileInfo?.chapters?.toTypedArray() ?: emptyArray())
                         } else if (event is TextReaderEvents.ChangeChapterEvent
                             || event is TextReaderEvents.ChangeSettingsEvent
                         ) {
                             val settings = TextReaderSettings.getInstance().state
                             val chapter = TextReaderService.getInstance().chapter
+                            val chapterIndex = TextReaderFileInfoStore.getInstance().state?.chapterIndex ?: 0
                             textReaderToolWindow.updateChapter(
+                                chapterIndex = chapterIndex,
                                 text = chapter?.lines?.joinToString(
                                     "\n".repeat(settings.paragraphSpace + 1)
                                 ) ?: "",
@@ -50,8 +53,16 @@ class TextReaderToolWindowFactory : ToolWindowFactory {
         val fileInfo = TextReaderFileInfoStore.getInstance().state
         val settings = TextReaderSettings.getInstance().state
         val chapter = TextReaderService.getInstance().chapter
-        fileInfo?.chapters?.let { textReaderToolWindow.updateChapterList(it) }
+        val chapters = fileInfo?.chapters
+        val chapterIndex = if (!chapters.isNullOrEmpty())  min(fileInfo.chapterIndex, chapters.size) else 0
+        if (!chapters.isNullOrEmpty()) {
+            textReaderToolWindow.updateChapterList(
+                data = chapters.toTypedArray(),
+                selectedIndex = chapterIndex,
+            )
+        }
         textReaderToolWindow.updateChapter(
+            chapterIndex = chapterIndex,
             text = chapter?.lines?.joinToString(
                 "\n".repeat(settings.paragraphSpace + 1)
             ) ?: "",
