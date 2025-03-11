@@ -13,13 +13,14 @@ import com.muedsa.jetbrains.textReader.services.TextReaderService
 import com.muedsa.jetbrains.textReader.setting.TextReaderSettings
 import java.awt.BorderLayout
 import java.awt.Component
+import java.awt.Cursor
 import java.awt.Dimension
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
+import java.awt.event.*
 import javax.swing.*
 import javax.swing.text.SimpleAttributeSet
 import javax.swing.text.StyleConstants
 import javax.swing.text.StyledDocument
+
 
 class TextReaderToolWindow(
     private val toolWindow: ToolWindow,
@@ -147,7 +148,46 @@ class TextReaderToolWindow(
         it.add(nextButton)
     }
 
-    private val chapterContentText = JTextPane()
+    private val chapterContentText = JTextPane().apply {
+        isEditable = false
+        cursor = Cursor.getDefaultCursor()
+        addFocusListener(object : FocusAdapter() {
+            override fun focusGained(e: FocusEvent) {
+                val textPane = e.component as JTextPane
+                textPane.caret.isVisible = true
+            }
+
+            override fun focusLost(e: FocusEvent) {
+                val textPane = e.component as JTextPane
+                textPane.caret.isVisible = false
+            }
+        })
+        addKeyListener(object : KeyAdapter() {
+            override fun keyPressed(e: KeyEvent?) {
+                when (e!!.getKeyChar()) {
+                    'w' -> {
+                        e.setKeyCode(KeyEvent.VK_UP)
+                        e.setKeyChar('\uFFFF')
+                    }
+
+                    'a' -> {
+                        e.setKeyCode(KeyEvent.VK_LEFT)
+                        e.setKeyChar('\uFFFF')
+                    }
+
+                    's' -> {
+                        e.setKeyCode(KeyEvent.VK_DOWN)
+                        e.setKeyChar('\uFFFF')
+                    }
+
+                    'd' -> {
+                        e.setKeyCode(KeyEvent.VK_RIGHT)
+                        e.setKeyChar('\uFFFF')
+                    }
+                }
+            }
+        })
+    }
 
     private val contentPanel = JPanel(BorderLayout()).also {
         it.add(chapterContentControlRow, BorderLayout.NORTH)
