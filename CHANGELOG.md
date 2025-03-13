@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [2.1.0] - 2025-03-13
+
+### Changed
+
+- 编辑器内阅读改为一个滚动文本窗
+
+### Removed
+
+- 移除通知栏展示方式
+
 ## [2.0.2] - 2025-03-10
 
 ### Added
@@ -27,7 +37,9 @@
 
 - 移除状态栏部件
 
-[Unreleased]: https://github.com/muedsa/text-reader-sidebar-tool/compare/2.0.2...HEAD
+[Unreleased]: https://github.com/muedsa/text-reader-sidebar-tool/compare/2.1.0...HEAD
+
+[2.0.2]: https://github.com/muedsa/text-reader-sidebar-tool/compare/2.0.2...2.1.0
 [2.0.2]: https://github.com/muedsa/text-reader-sidebar-tool/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/muedsa/text-reader-sidebar-tool/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/muedsa/text-reader-sidebar-tool/commits/2.0.0
