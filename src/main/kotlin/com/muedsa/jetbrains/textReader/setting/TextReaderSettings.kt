@@ -34,30 +34,33 @@ class TextReaderSettings : PersistentStateComponent<TextReaderSettings.State> {
         // 【章节阅读】段落间隔
         var paragraphSpace: Int = 1,
 
-        //【单行阅读】每次读取的文本长度
-        var singleLineTextLength: Int = 30,
+        //【编辑器内阅读】编辑器内文本窗口的宽度
+        var editorBorderTextWindowWidth: Int = 500,
 
-        //【单行阅读】展示位置
-        var singleLineTextShowType: ReaderLineShowType = ReaderLineShowType.EDITOR_BACKGROUND,
+        //【编辑器内阅读】编辑器内文本窗口的高度
+        var editorBorderTextWindowHeight: Int = 200,
 
-        //【单行阅读】文本颜色
+        //【编辑器内阅读】文本颜色
         @OptionTag(converter = JBColorConverter::class)
-        var singleLineTextColor: JBColor =
+        var editorBorderTextColor: JBColor =
             JBColor(UIUtil.getPanelBackground().brighter(), UIUtil.getPanelBackground().brighter()),
 
-        // 【单行阅读-编辑器】文本偏移类型
-        var editorBackgroundOffsetType: OffsetType = OffsetType.LEFT_BOTTOM,
+        // 【编辑器内阅读】文本偏移类型
+        var editorBorderTextWindowOffsetType: OffsetType = OffsetType.LEFT_BOTTOM,
 
-        // 【单行阅读-编辑器】文本相对于编辑器的水平偏移量
-        var editorBackgroundOffsetX: Int = 5,
+        // 【编辑器内阅读】文本相对于编辑器的水平偏移量
+        var editorBorderTextWindowOffsetX: Int = 5,
 
-        // 【单行阅读-编辑器】文本相对于编辑器的垂直偏移量
-        var editorBackgroundOffsetY: Int = 20,
+        // 【编辑器内阅读】文本相对于编辑器的垂直偏移量
+        var editorBorderTextWindowOffsetY: Int = 20,
 
-        // 【单行阅读-编辑器】启用鼠标滚轮控制
+        // 【编辑器内阅读】滚动速率
+        var editorBorderTextWindowScrollSpeedRate: Double = 0.15,
+
+        // 【编辑器内阅读】启用鼠标滚轮控制
         var enableControlByMouseClick: Boolean = false,
 
-        // 【单行阅读-编辑器】启用鼠标滚轮控制
+        // 【编辑器内阅读】启用鼠标滚轮控制
         var enableControlByMouseWheel: Boolean = false,
     ) {
         fun toFont(): Font = Font(fontFamily, Font.PLAIN, fontSize)

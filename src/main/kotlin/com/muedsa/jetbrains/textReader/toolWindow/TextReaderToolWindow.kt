@@ -204,9 +204,9 @@ class TextReaderToolWindow(
     fun updateChapterList(data: Array<SimpleChapterInfo>, selectedIndex: Int = 0) {
         chapterSearchTextField.text = ""
         chapterListData = data
+        chapterList.setListData(data)
         if (data.isNotEmpty()) {
             check(selectedIndex >= 0 && selectedIndex < chapterListData.size)
-            chapterList.setListData(data)
             chapterList.selectedIndex = selectedIndex
             chapterList.ensureIndexIsVisible(selectedIndex)
         }

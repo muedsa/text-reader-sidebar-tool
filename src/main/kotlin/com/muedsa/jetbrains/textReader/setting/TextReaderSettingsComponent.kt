@@ -32,7 +32,7 @@ class TextReaderSettingsComponent(
         StyleConstants.setFontSize(attributes, model.fontSize)
         StyleConstants.setLineSpacing(attributes, model.lineSpace.toFloat())
         StyleConstants.setFirstLineIndent(attributes, model.firstLineIndent.toFloat() * model.fontSize.toFloat())
-        StyleConstants.setForeground(attributes, model.getSingleLineTextColor())
+        StyleConstants.setForeground(attributes, model.getEditorBorderTextColor())
         styledDocument.setParagraphAttributes(0, styledDocument.length, attributes, false)
 
         panel = panel {
@@ -76,9 +76,6 @@ class TextReaderSettingsComponent(
                             }
                         }
                 }
-            }.rowComment("通用的文本格式")
-
-            group("章节阅读") {
                 row("行间距") {
                     spinner(range = 0.0..10.0, step = 0.1)
                         .bindValue(model::lineSpace)
@@ -112,7 +109,7 @@ class TextReaderSettingsComponent(
                             }
                         }
                 }
-            }.rowComment("加载章节完成可以在工具窗口的章节页阅读整个章节, 这里设置工具窗口的文本格式")
+            }
 
             group("示例文本") {
                 row {
@@ -120,23 +117,19 @@ class TextReaderSettingsComponent(
                 }
             }
 
-            group("单行阅读") {
-                row("读取长度") {
-                    spinner(range = 1..100, step = 1)
-                        .bindIntValue(model::singleLineTextLength)
+            group("编辑器内阅读") {
+                row("文本窗大小") {
+                    spinner(range = 10..1000, step = 1)
+                        .bindIntValue(model::editorBorderTextWindowWidth)
+                    text("X")
+                    spinner(range = 10..1000, step = 1)
+                        .bindIntValue(model::editorBorderTextWindowHeight)
                 }
-
-                buttonsGroup {
-                    row("展示类型") {
-                        radioButton("编辑器背景", ReaderLineShowType.EDITOR_BACKGROUND)
-                        radioButton("通知", ReaderLineShowType.NOTIFY)
-                    }
-                }.bind(model::singleLineTextShowType)
 
                 row("文本颜色") {
                     text("RGBA(")
                     spinner(range = 0..255, step = 1)
-                        .bindIntValue(model::singleLineTextColorR)
+                        .bindIntValue(model::editorBorderTextColorR)
                         .applyToComponent {
                             addChangeListener {
                                 val red = this@applyToComponent.value as Int
@@ -155,7 +148,7 @@ class TextReaderSettingsComponent(
                         }
                     text(",")
                     spinner(range = 0..255, step = 1)
-                        .bindIntValue(model::singleLineTextColorG)
+                        .bindIntValue(model::editorBorderTextColorG)
                         .applyToComponent {
                             addChangeListener {
                                 val green = this@applyToComponent.value as Int
@@ -174,7 +167,7 @@ class TextReaderSettingsComponent(
                         }
                     text(",")
                     spinner(range = 0..255, step = 1)
-                        .bindIntValue(model::singleLineTextColorB)
+                        .bindIntValue(model::editorBorderTextColorB)
                         .applyToComponent {
                             addChangeListener {
                                 val blue = this@applyToComponent.value as Int
@@ -192,7 +185,7 @@ class TextReaderSettingsComponent(
                             }
                         }
                     spinner(range = 0..255, step = 1)
-                        .bindIntValue(model::singleLineTextColorA)
+                        .bindIntValue(model::editorBorderTextColorA)
                         .applyToComponent {
                             addChangeListener {
                                 val alpha = this@applyToComponent.value as Int
@@ -210,9 +203,9 @@ class TextReaderSettingsComponent(
                             }
                         }
                     text(")")
-                    text("rgba(${model.singleLineTextColorR},${model.singleLineTextColorG},${model.singleLineTextColorB},${model.singleLineTextColorA})").applyToComponent {
+                    text("rgba(${model.editorBorderTextColorR},${model.editorBorderTextColorG},${model.editorBorderTextColorB},${model.editorBorderTextColorA})").applyToComponent {
                         testTextComponent = this@applyToComponent
-                        foreground = model.getSingleLineTextColor()
+                        foreground = model.getEditorBorderTextColor()
                     }
                 }
 
@@ -223,15 +216,20 @@ class TextReaderSettingsComponent(
                         radioButton("右上↗", OffsetType.RIGHT_TOP)
                         radioButton("右上↘", OffsetType.RIGHT_BOTTOM)
                     }
-                }.bind(model::editorBackgroundOffsetType)
+                }.bind(model::editorBorderTextWindowOffsetType)
 
                 row("偏移量") {
                     spinner(range = 1..255, step = 1)
                         .label("X=", LabelPosition.LEFT)
-                        .bindIntValue(model::editorBackgroundOffsetX)
+                        .bindIntValue(model::editorBorderTextWindowOffsetX)
                     spinner(range = 1..255, step = 1)
                         .label("Y=", LabelPosition.LEFT)
-                        .bindIntValue(model::editorBackgroundOffsetY)
+                        .bindIntValue(model::editorBorderTextWindowOffsetY)
+                }
+
+                row("窗口滚动速率") {
+                    spinner(range = 0.01..1.0, step = 0.01)
+                        .bindValue(model::editorBorderTextWindowScrollSpeedRate)
                 }
 
                 buttonsGroup {
@@ -280,40 +278,41 @@ class TextReaderSettingsComponent(
         // 字体大小
         var fontSize: Int = 12,
 
-        // 【章节阅读】行间距
+        // 行间距
         var lineSpace: Double = 0.5,
 
-        // 【章节阅读】首行缩进
+        // 首行缩进
         var firstLineIndent: Int = 2,
 
-        // 【章节阅读】段落间隔
+        // 段落间隔
         var paragraphSpace: Int = 1,
 
-        //【单行阅读】每次读取的文本长度
-        var singleLineTextLength: Int = 30,
+        //【编辑器内阅读】编辑器内文本窗口的宽度
+        var editorBorderTextWindowWidth: Int = 500,
+        //【编辑器内阅读】编辑器内文本窗口的高度
+        var editorBorderTextWindowHeight: Int = 200,
 
-        //【单行阅读】展示位置
-        var singleLineTextShowType: ReaderLineShowType = ReaderLineShowType.EDITOR_BACKGROUND,
+        //【编辑器内阅读】文本颜色
+        var editorBorderTextColorR: Int = 64,
+        var editorBorderTextColorG: Int = 64,
+        var editorBorderTextColorB: Int = 64,
+        var editorBorderTextColorA: Int = 255,
 
-        //【单行阅读】文本颜色
-        var singleLineTextColorR: Int = 64,
-        var singleLineTextColorG: Int = 64,
-        var singleLineTextColorB: Int = 64,
-        var singleLineTextColorA: Int = 255,
+        // 【编辑器内阅读】文本偏移类型
+        var editorBorderTextWindowOffsetType: OffsetType = OffsetType.LEFT_BOTTOM,
 
-        // 【单行阅读-编辑器】文本偏移类型
-        var editorBackgroundOffsetType: OffsetType = OffsetType.LEFT_BOTTOM,
+        // 【编辑器内阅读】文本相对于编辑器的水平偏移量
+        var editorBorderTextWindowOffsetX: Int = 5,
+        // 【编辑器内阅读】文本相对于编辑器的垂直偏移量
+        var editorBorderTextWindowOffsetY: Int = 20,
 
-        // 【单行阅读-编辑器】文本相对于编辑器的水平偏移量
-        var editorBackgroundOffsetX: Int = 5,
+        // 【编辑器内阅读】窗口滚动速率
+        var editorBorderTextWindowScrollSpeedRate: Double = 0.15,
 
-        // 【单行阅读-编辑器】文本相对于编辑器的垂直偏移量
-        var editorBackgroundOffsetY: Int = 20,
-
-        // 【单行阅读-编辑器】启用鼠标滚轮控制
+        // 【编辑器内阅读】启用鼠标滚轮控制
         var enableControlByMouseClick: Boolean = false,
 
-        // 【单行阅读-编辑器】启用鼠标滚轮控制
+        // 【编辑器内阅读】启用鼠标滚轮控制
         var enableControlByMouseWheel: Boolean = false,
     ) {
 
@@ -325,32 +324,33 @@ class TextReaderSettingsComponent(
             state.lineSpace = lineSpace
             state.firstLineIndent = firstLineIndent
             state.paragraphSpace = paragraphSpace
-            state.singleLineTextLength = singleLineTextLength
-            state.singleLineTextShowType = singleLineTextShowType
-            state.singleLineTextColor = getSingleLineTextColor()
-            state.editorBackgroundOffsetType = editorBackgroundOffsetType
-            state.editorBackgroundOffsetX = editorBackgroundOffsetX
-            state.editorBackgroundOffsetY = editorBackgroundOffsetY
+            state.editorBorderTextWindowWidth = editorBorderTextWindowWidth
+            state.editorBorderTextWindowHeight = editorBorderTextWindowHeight
+            state.editorBorderTextColor = getEditorBorderTextColor()
+            state.editorBorderTextWindowOffsetType = editorBorderTextWindowOffsetType
+            state.editorBorderTextWindowOffsetX = editorBorderTextWindowOffsetX
+            state.editorBorderTextWindowOffsetY = editorBorderTextWindowOffsetY
+            state.editorBorderTextWindowScrollSpeedRate = editorBorderTextWindowScrollSpeedRate
             state.enableControlByMouseClick = enableControlByMouseClick
             state.enableControlByMouseWheel = enableControlByMouseWheel
         }
 
-        fun getSingleLineTextColor(
+        fun getEditorBorderTextColor(
             r: Int? = null,
             g: Int? = null,
             b: Int? = null,
             a: Int? = null,
         ): JBColor {
-            val colorValue = (((a ?: singleLineTextColorA) and 0xFF) shl 24) or
-                    (((r ?: singleLineTextColorR) and 0xFF) shl 16) or
-                    (((g ?: singleLineTextColorG) and 0xFF) shl 8) or
-                    (((b ?: singleLineTextColorB) and 0xFF) shl 0)
+            val colorValue = (((a ?: editorBorderTextColorA) and 0xFF) shl 24) or
+                    (((r ?: editorBorderTextColorR) and 0xFF) shl 16) or
+                    (((g ?: editorBorderTextColorG) and 0xFF) shl 8) or
+                    (((b ?: editorBorderTextColorB) and 0xFF) shl 0)
             return JBColor(colorValue, colorValue)
         }
 
         companion object {
             fun from(state: TextReaderSettings.State): Model {
-                val color = state.singleLineTextColor
+                val color = state.editorBorderTextColor
                 return Model(
                     parseChapterTitleRegex = state.parseChapterTitleRegex.toString(),
                     fontFamily = state.fontFamily,
@@ -358,15 +358,16 @@ class TextReaderSettingsComponent(
                     lineSpace = state.lineSpace,
                     firstLineIndent = state.firstLineIndent,
                     paragraphSpace = state.paragraphSpace,
-                    singleLineTextLength = state.singleLineTextLength,
-                    singleLineTextShowType = state.singleLineTextShowType,
-                    singleLineTextColorR = color.red,
-                    singleLineTextColorG = color.green,
-                    singleLineTextColorB = color.blue,
-                    singleLineTextColorA = color.alpha,
-                    editorBackgroundOffsetType = state.editorBackgroundOffsetType,
-                    editorBackgroundOffsetX = state.editorBackgroundOffsetX,
-                    editorBackgroundOffsetY = state.editorBackgroundOffsetY,
+                    editorBorderTextWindowWidth = state.editorBorderTextWindowWidth,
+                    editorBorderTextWindowHeight = state.editorBorderTextWindowHeight,
+                    editorBorderTextColorR = color.red,
+                    editorBorderTextColorG = color.green,
+                    editorBorderTextColorB = color.blue,
+                    editorBorderTextColorA = color.alpha,
+                    editorBorderTextWindowOffsetType = state.editorBorderTextWindowOffsetType,
+                    editorBorderTextWindowOffsetX = state.editorBorderTextWindowOffsetX,
+                    editorBorderTextWindowOffsetY = state.editorBorderTextWindowOffsetY,
+                    editorBorderTextWindowScrollSpeedRate = state.editorBorderTextWindowScrollSpeedRate,
                     enableControlByMouseClick = state.enableControlByMouseClick,
                     enableControlByMouseWheel = state.enableControlByMouseWheel,
                 )

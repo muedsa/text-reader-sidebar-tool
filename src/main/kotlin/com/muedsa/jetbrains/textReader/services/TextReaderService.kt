@@ -6,14 +6,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.muedsa.jetbrains.textReader.TextReaderSidebarToolIcons
 import com.muedsa.jetbrains.textReader.bus.TextReaderEvents
-import com.muedsa.jetbrains.textReader.editor.EditorBorderTextInfo
+import com.muedsa.jetbrains.textReader.editor.EditorBorder
+import com.muedsa.jetbrains.textReader.editor.EditorBorderChapterState
 import com.muedsa.jetbrains.textReader.model.Chapter
 import com.muedsa.jetbrains.textReader.notification.TextReaderNotifications
 import com.muedsa.jetbrains.textReader.setting.TextReaderSettings
 import com.muedsa.jetbrains.textReader.util.TextReaderUtil
 import java.io.RandomAccessFile
-import kotlin.math.max
-import kotlin.math.min
 
 @Service(Service.Level.APP)
 class TextReaderService {
@@ -70,15 +69,8 @@ class TextReaderService {
             return _chapter
         }
 
-    private var rangeOfChapterContent: IntRange = 0 until 0
-
-    val editorBorderTextInfo by lazy {
-        EditorBorderTextInfo(
-            font = settings.state.toFont(),
-            offsetType = settings.state.editorBackgroundOffsetType,
-            offsetX = settings.state.editorBackgroundOffsetX,
-            offsetY = settings.state.editorBackgroundOffsetY,
-        )
+    val editorBorderChapterState by lazy {
+        EditorBorderChapterState()
     }
 
     fun nextChapter() {
@@ -91,38 +83,25 @@ class TextReaderService {
         changeChapter(index - 1, true)
     }
 
-    fun nextContent(length: Int): String? {
-        var content: String? = null
-        var chapterContent =  chapter?.contentWithoutLF
-        if (chapterContent != null) {
-            if (rangeOfChapterContent.endExclusive == chapterContent.length) {
+    fun nextScroll() {
+        chapter?.let {
+            if (editorBorderChapterState.windowEndPercentage == 1f) {
                 nextChapter()
-                chapterContent = chapter?.contentWithoutLF
+            } else {
+                editorBorderChapterState.nextScroll()
             }
         }
-        if (chapterContent != null) {
-            val end = min(rangeOfChapterContent.endExclusive + length, chapterContent.length)
-            rangeOfChapterContent = rangeOfChapterContent.endExclusive until end
-            content = chapterContent.substring(rangeOfChapterContent)
-            editorBorderTextInfo.text = content
-        }
-        return content
+
     }
 
-    fun previousContent(length: Int): String? {
-        var content: String? = null
-        var chapterContent = chapter?.contentWithoutLF
-        if (rangeOfChapterContent.start == 0) {
-            previousChapter()
-            chapterContent = chapter?.contentWithoutLF
+    fun previousScroll() {
+        chapter?.let {
+            if (editorBorderChapterState.windowStartPercentage == 0f) {
+                previousChapter()
+            } else {
+                editorBorderChapterState.previousScroll()
+            }
         }
-        if (chapterContent != null) {
-            val start = max(0, rangeOfChapterContent.start - length)
-            rangeOfChapterContent = start until rangeOfChapterContent.start
-            content = chapterContent.substring(rangeOfChapterContent)
-            editorBorderTextInfo.text = content
-        }
-        return content
     }
 
     fun changeChapter(chapterIndex: Int, rangeToEnd: Boolean = false) {
@@ -146,11 +125,7 @@ class TextReaderService {
                 lines = liens,
                 contentWithoutLF = liens.joinToString("//"),
             ).also {
-                if (rangeToEnd) {
-                    this.rangeOfChapterContent = it.contentWithoutLF.length until it.contentWithoutLF.length
-                } else {
-                    this.rangeOfChapterContent = 0 until 0
-                }
+                editorBorderChapterState.changeChapter(it.lines, rangeToEnd)
             }
             selectedFileInfoStore.state?.chapterIndex = chapterIndex
 
@@ -159,10 +134,12 @@ class TextReaderService {
     }
 
     fun clear() {
+        EditorBorder.clear()
+        this.editorBorderChapterState.clear()
         this.file = null
         this._chapter = null
+        this.selectedFileInfoStore.clear()
         TextReaderEvents.syncPublisher().onEvent(TextReaderEvents.ChangeChapterEvent)
-        selectedFileInfoStore.clear()
         TextReaderEvents.syncPublisher().onEvent(TextReaderEvents.ChangeChapterListEvent)
     }
 
@@ -171,6 +148,3 @@ class TextReaderService {
         fun getInstance() = service<TextReaderService>()
     }
 }
-
-val IntRange.endExclusive: Int
-    get() = endInclusive + 1

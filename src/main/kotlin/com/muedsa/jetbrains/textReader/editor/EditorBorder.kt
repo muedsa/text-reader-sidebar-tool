@@ -8,9 +8,10 @@ import com.intellij.reference.SoftReference
 import com.intellij.util.ui.JBUI
 import com.muedsa.jetbrains.textReader.action.ReaderNextAction
 import com.muedsa.jetbrains.textReader.action.ReaderPreviousAction
-import com.muedsa.jetbrains.textReader.setting.OffsetType
+import com.muedsa.jetbrains.textReader.services.TextReaderService
 import java.awt.Component
 import java.awt.Graphics
+import java.awt.Graphics2D
 import java.awt.Insets
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -20,7 +21,6 @@ import javax.swing.SwingUtilities
 import javax.swing.border.Border
 
 class EditorBorder(
-    val textInfo: EditorBorderTextInfo,
     val editor: Editor,
 ) : Border {
 
@@ -33,35 +33,11 @@ class EditorBorder(
         height: Int,
     ) {
         if (this != SoftReference.dereference(LAST)) return
+        val service = TextReaderService.getInstance()
+        val chapterInfo = service.editorBorderChapterState
         val visibleArea = editor.scrollingModel.visibleArea
-        g.font = textInfo.font
-        g.color = textInfo.color
-        val fontMetrics = g.fontMetrics
-        val textWidth = fontMetrics.stringWidth(textInfo.text)
-        var posX = 0
-        var posY = 0
-        when (textInfo.offsetType) {
-            OffsetType.LEFT_TOP -> {
-                posX = visibleArea.x + textInfo.offsetX
-                posY = visibleArea.y + fontMetrics.ascent + textInfo.offsetY
-            }
-
-            OffsetType.LEFT_BOTTOM -> {
-                posX = visibleArea.x + textInfo.offsetX
-                posY = visibleArea.y + visibleArea.height - fontMetrics.descent - textInfo.offsetY
-            }
-
-            OffsetType.RIGHT_TOP -> {
-                posX = visibleArea.x + visibleArea.width - textWidth - textInfo.offsetX
-                posY = visibleArea.y + fontMetrics.ascent + textInfo.offsetY
-            }
-
-            OffsetType.RIGHT_BOTTOM -> {
-                posX = visibleArea.x + visibleArea.width - textWidth - textInfo.offsetX
-                posY = visibleArea.y + visibleArea.height - fontMetrics.descent - textInfo.offsetY
-            }
-        }
-        g.drawString(textInfo.text, posX, posY)
+        val g2d = g as Graphics2D
+        chapterInfo.paint(g2d, visibleArea.x, visibleArea.y, visibleArea.width, visibleArea.height)
     }
 
     override fun getBorderInsets(c: Component): Insets {
@@ -143,14 +119,12 @@ class EditorBorder(
 
         fun appendToEditor(
             editor: Editor,
-            textInfo: EditorBorderTextInfo,
             enableControlByMouseClick: Boolean,
             enableControlByMouseWheel: Boolean,
         ) {
             val lastEditor = SoftReference.dereference(LAST_EDITOR)
             if (editor != lastEditor) {
                 editor.contentComponent.border = EditorBorder(
-                    textInfo = textInfo,
                     editor = editor,
                 ).also {
                     clear()
