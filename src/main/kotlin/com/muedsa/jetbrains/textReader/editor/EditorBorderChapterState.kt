@@ -18,6 +18,7 @@ class EditorBorderChapterState {
         private set
     var windowEndPercentage = 0f
         private set
+    var windowChapterEnd: Boolean = false
     private var needLayout = true
     private var frc: FontRenderContext? = null
     private var height = 0f
@@ -34,10 +35,12 @@ class EditorBorderChapterState {
         if (rangeToEnd) {
             windowStartPercentage = 1f
             windowEndPercentage = 1f
+            reverse = true
         } else {
             windowStartPercentage = 0f
             windowEndPercentage = 0f
         }
+        windowChapterEnd = false
     }
 
     fun nextScroll() {
@@ -125,9 +128,12 @@ class EditorBorderChapterState {
         }
         val offsetY = windowY - this.height * this.windowStartPercentage
         g2d.color = settings.editorBorderTextColor
-        for (layout in layouts) {
+        layouts.forEachIndexed { index, layout ->
             val dy = offsetY + layout.y
             layout.textLayout.draw(g2d, windowX + layout.x, dy)
+            if (index == layouts.lastIndex && dy < windowY) {
+                windowChapterEnd = true
+            }
         }
         this.windowEndPercentage = min(1f, (this.height * this.windowStartPercentage + windowHeight) / this.height)
         g2d.clip(originalClip)
@@ -138,6 +144,7 @@ class EditorBorderChapterState {
         layouts = emptyList()
         windowStartPercentage = 0f
         windowEndPercentage = 0f
+        windowChapterEnd = false
         needLayout = true
         frc = null
         height = 0f

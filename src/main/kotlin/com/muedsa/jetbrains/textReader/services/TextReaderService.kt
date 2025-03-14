@@ -85,7 +85,7 @@ class TextReaderService {
 
     fun nextScroll() {
         chapter?.let {
-            if (editorBorderChapterState.windowEndPercentage == 1f) {
+            if (editorBorderChapterState.windowChapterEnd) {
                 nextChapter()
             } else {
                 editorBorderChapterState.nextScroll()
