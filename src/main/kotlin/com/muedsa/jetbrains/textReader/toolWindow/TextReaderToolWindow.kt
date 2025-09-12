@@ -136,7 +136,7 @@ class TextReaderToolWindow(
                 readerService.previousChapter()
             }
         }
-        val nextButton = JButton("Previous").apply {
+        val nextButton = JButton("Next").apply {
             maximumSize = Dimension(Int.MAX_VALUE, preferredSize.height)
             alignmentX = Component.CENTER_ALIGNMENT
             addActionListener {
